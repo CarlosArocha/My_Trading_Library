@@ -3,7 +3,8 @@ import pandas as pd
 import requests
 import matplotlib.pyplot as plt
 
-# Alpha Vantage API Functions:
+# INITIAL CONFIGURATION
+pd.set_option('display.max_columns', None)
 APIKEY = '7CFUAQQUK36OOGM8'
 FilePathOrigin = '/Volumes/OutSSD/DATA/stocks/'
 
@@ -14,6 +15,11 @@ def get_Filepath(*args):
         filepath += "-"+a
     return filepath+'.'+args[-1]
 
+################################################################################
+##                                                                            ##
+##              Alpha Vantage API Functions: STOCKS TIME SERIES               ##
+##                                                                            ##
+################################################################################
 
 def get_Intraday2m(symbol, interval, adjusted='True', outputsize='compact',\
                    apikey=APIKEY):
@@ -32,18 +38,18 @@ def get_Intraday2m(symbol, interval, adjusted='True', outputsize='compact',\
 
     Function Parameters:
 
-    ❚ Required: symbol: The name of the equity of your choice. Example: 'IBM'
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
 
-    ❚ Required: interval: '1min', '5min', '15min', '30min', '60min'
+    * Required: interval: '1min', '5min', '15min', '30min', '60min'
 
-    ❚ Optional: adjusted: True or False
+    * Optional: adjusted: True or False
 
-    ❚ Optional: outputsize:
+    * Optional: outputsize:
                 outputsize=compact (default), returns only the latest 100 data
                 points in the intraday time series;
                 outputsize=full, returns the full-length intraday time series.
 
-    ❚ Required: apikey
+    * Required: apikey
 
     Returns:
         A Dataframe with columns: timestamp, open, high, low, close, volume
@@ -79,16 +85,16 @@ def get_Intraday24m(symbol, interval, slice, adjusted='True', apikey=APIKEY):
 
     Function Parameters:
 
-    ❚ Required: symbol: The name of the equity of your choice. Example: 'IBM'
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
 
-    ❚ Required: interval: '1min', '5min', '15min', '30min', '60min'
+    * Required: interval: '1min', '5min', '15min', '30min', '60min'
 
-    ❚ Required: slice: 'year1month1',...,'year1month12',
+    * Required: slice: 'year1month1',...,'year1month12',
                        'year2month1',...,'year2month12'
 
-    ❚ Optional: adjusted: True or False
+    * Optional: adjusted: True or False
 
-    ❚ Required: apikey
+    * Required: apikey
 
     Returns:
         A Dataframe with the next columns: time, open, high, low, close, volume
@@ -121,14 +127,14 @@ def get_DailyRaw(symbol, outputsize='compact', apikey=APIKEY):
 
     Function Parameters:
 
-    ❚ Required: symbol: The name of the equity of your choice. Example: 'IBM'
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
 
-    ❚ Optional: outputsize:
+    * Optional: outputsize:
                 outputsize='compact' (default), returns only the latest 100 data
                 points in the daily time series;
                 outputsize='full', returns the full-length daiily ts = 20+years.
 
-    ❚ Required: apikey
+    * Required: apikey
 
     Returns:
         A Dataframe with columns: timestamp, open, high, low, close, volume
@@ -151,20 +157,20 @@ def get_DailyRaw(symbol, outputsize='compact', apikey=APIKEY):
 def get_DailyAdjusted(symbol, outputsize='compact', apikey=APIKEY):
 
     '''
-    This API returns raw (as-traded) daily open/high/low/close/volume values,
-    daily adjusted close values, and historical split/dividend events of the
-    global equity specified, covering 20+ years of historical data.
+    This function returns raw (as-traded) daily open/high/low/close/volume
+    values, daily adjusted close values, and historical split/dividend events of
+    the global equity specified, covering 20+ years of historical data.
 
     Function Parameters:
 
-    ❚ Required: symbol: The name of the equity of your choice. Example: 'IBM'
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
 
-    ❚ Optional: outputsize:
+    * Optional: outputsize:
                 outputsize='compact' (default), returns only the latest 100 data
                 points in the daily time series;
                 outputsize='full', returns the full-length daiily ts = 20+years.
 
-    ❚ Required: apikey
+    * Required: apikey
 
     Returns:
         A Dataframe with columns: timestamp, open, high, low, close,
@@ -186,30 +192,252 @@ def get_DailyAdjusted(symbol, outputsize='compact', apikey=APIKEY):
 
     return pd.read_csv(url), filepath
 
+def get_WeeklyRaw(symbol, apikey=APIKEY):
+
+    '''
+    This function returns weekly time series (last trading day of each week,
+    weekly open, weekly high, weekly low, weekly close, weekly volume) of the
+    global equity specified, covering 20+ years of historical data.
+
+    Function Parameters:
+
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe with columns: timestamp, open, high, low, close, volume
+        The filepath option for saving purpose
+    '''
+    Function = 'TIME_SERIES_WEEKLY'
+    Datatype = 'csv'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&symbol='+symbol+                 \
+                                            '&datatype='+Datatype+             \
+                                            '&apikey='+apikey
+
+    filepath = get_Filepath(symbol, 'WEEKLY', 'RAW', \
+                            Datatype)
+
+    return pd.read_csv(url), filepath
+
+def get_WeeklyAdjusted(symbol, apikey=APIKEY):
+
+    '''
+    This function returns weekly adjusted time series (last trading day of each
+    week, weekly open, weekly high, weekly low, weekly close, weekly adjusted
+    close, weekly volume, weekly dividend) of the global equity specified,
+    covering 20+ years of historical data.
+
+    Function Parameters:
+
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe with columns: timestamp, open, high, low, close,
+                                  adjusted close, volume
+        The filepath option for saving purpose
+    '''
+    Function = 'TIME_SERIES_WEEKLY_ADJUSTED'
+    Datatype = 'csv'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&symbol='+symbol+                 \
+                                            '&datatype='+Datatype+             \
+                                            '&apikey='+apikey
+
+    filepath = get_Filepath(symbol, 'WEEKLY', 'ADJ', \
+                            Datatype)
+
+    return pd.read_csv(url), filepath
+
+def get_MonthlyRaw(symbol, apikey=APIKEY):
+
+    '''
+    This function returns monthly time series (last trading day of each month,
+    monthly open, monthly high, monthly low, monthly close, monthly volume) of
+    the global equity specified, covering 20+ years of historical data.
+
+    Function Parameters:
+
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe with columns: timestamp, open, high, low, close, volume
+        The filepath option for saving purpose
+    '''
+    Function = 'TIME_SERIES_MONTHLY'
+    Datatype = 'csv'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&symbol='+symbol+                 \
+                                            '&datatype='+Datatype+             \
+                                            '&apikey='+apikey
+
+    filepath = get_Filepath(symbol, 'MONTHLY', 'RAW', \
+                            Datatype)
+
+    return pd.read_csv(url), filepath
+
+def get_Quote(symbol, apikey=APIKEY):
+
+    '''
+    A lightweight alternative to the time series functions, this service returns
+    the price and volume information for a security of your choice.
+
+    Function Parameters:
+
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe with columns: symbol, open, high, low, price, volume,
+                                  latestDay, previousClose, change,
+                                  changePercent
+    '''
+    Function = 'GLOBAL_QUOTE'
+    Datatype = 'csv'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&symbol='+symbol+                 \
+                                            '&datatype='+Datatype+             \
+                                            '&apikey='+apikey
+
+    return pd.read_csv(url)
+
+def get_SearchTicker(text, apikey=APIKEY):
+
+    '''
+    We've got you covered! The Search Endpoint returns the best-matching symbols
+    and market information based on keywords of your choice. The search results
+    also contain match scores that provide you with the full flexibility to
+    develop your own search and filtering logic.
+
+    Function Parameters:
+
+    * Required: text: A text string of your choice. For example: 'microsoft.'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe with columns: symbol, name, type, region, marketOpen,
+                                  marketClose, timezone, currency, matchScore
+    '''
+    Function = 'SYMBOL_SEARCH'
+    Datatype = 'csv'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&keywords='+text+                 \
+                                            '&datatype='+Datatype+             \
+                                            '&apikey='+apikey
+
+    return pd.read_csv(url)
+
+################################################################################
+##                                                                            ##
+##              Alpha Vantage API Functions: FUNDAMENTALS                     ##
+##                                                                            ##
+################################################################################
+
+def get_CompanyOverview(symbol, apikey=APIKEY):
+
+    '''
+    This function returns the company information, financial ratios, and other
+    key metrics for the equity specified. Data is generally refreshed on the
+    same day a company reports its latest earnings and financials.
+
+    Function Parameters:
+
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe with columns: 'Symbol', 'AssetType', 'Name', 'Description',
+                                  'Exchange', 'Currency','Country', 'Sector',
+                                  'Industry', 'Address', 'FullTimeEmployees',
+                                  'FiscalYearEnd', 'LatestQuarter',
+                                  'MarketCapitalization', 'EBITDA','PERatio',
+                                  'PEGRatio', 'BookValue', 'DividendPerShare',
+                                  'DividendYield','EPS', 'RevenuePerShareTTM',
+                                  'ProfitMargin', 'OperatingMarginTTM',
+                                  'ReturnOnAssetsTTM', 'ReturnOnEquityTTM',
+                                  'RevenueTTM','GrossProfitTTM','DilutedEPSTTM',
+                                  'QuarterlyEarningsGrowthYOY',
+                                  'QuarterlyRevenueGrowthYOY',
+                                  'AnalystTargetPrice','TrailingPE','ForwardPE',
+                                  'PriceToSalesRatioTTM', 'PriceToBookRatio',
+                                  'EVToRevenue','EVToEBITDA', 'Beta',
+                                  '52WeekHigh','52WeekLow','50DayMovingAverage',
+                                  '200DayMovingAverage', 'SharesOutstanding',
+                                  'SharesFloat','SharesShort',
+                                  'SharesShortPriorMonth', 'ShortRatio',
+                                  'ShortPercentOutstanding','ShortPercentFloat',
+                                  'PercentInsiders','PercentInstitutions',
+                                  'ForwardAnnualDividendRate',
+                                  'ForwardAnnualDividendYield', 'PayoutRatio',
+                                  'DividendDate','ExDividendDate',
+                                  'LastSplitFactor', 'LastSplitDate'],
+    '''
+    Function = 'OVERVIEW'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&symbol='+symbol+                 \
+                                            '&apikey='+apikey
+
+    #return pd.read_json(url, orient='records')
+    return pd.DataFrame(requests.get(url).json(), index=[0])
+
+def get_CompanyEarnings(symbol, apikey=APIKEY):
+
+    '''
+    This function returns the annual and quarterly earnings (EPS) for the
+    company of interest. Quarterly data also includes analyst estimates and
+    surprise metrics.
+
+    Function Parameters:
+
+    * Required: symbol: The name of the equity of your choice. Example: 'IBM'
+
+    * Required: apikey
+
+    Returns:
+        A Dataframe dfYear: With the annual earnings for 20+ years.
+                            With the next columns:
+                                'fiscalDateEnding' and 'reportedEPS'
+        A Dataframe dfQuart: With the quarterly earnings info for 20+ years.
+                            With the next columns:
+                                'fiscalDateEnding', 'reportedDate',
+                                'reportedEPS', 'estimatedEPS', 'surprise' and
+                                'surprisePercentage'
+    '''
+    Function = 'EARNINGS'
+    url = 'https://www.alphavantage.co/query?function='+Function+              \
+                                            '&symbol='+symbol+                 \
+                                            '&apikey='+apikey
+
+    jsonDict =  requests.get(url).json()
+    jsonDict.pop('symbol')
+    return  pd.DataFrame.from_dict(jsonDict.get('annualEarnings')),\
+            pd.DataFrame.from_dict(jsonDict.get('quarterlyEarnings'))
 
 
 
-#df1, filepath = get_Intraday2m(symbol='AAPL', interval='1min')
 
-#df2, filepath = get_Intraday24m(symbol='AAPL', interval='1min', slice='year1month6')
+dfa, dfb = get_CompanyEarnings('ba')
+print(dfa, '\n', dfb)
 
-df3, filepath = get_DailyAdjusted('AAPL', outputsize='full')
 
-#df1.to_csv(filepath, index=False, header=True)
-#df1 = pd.read_csv(filepath)
-#print(df1, df1.columns, df1.timestamp, df1.close, filepath)
 
-#df2.to_csv(filepath, index=False, header=True)
-#df2 = pd.read_csv(filepath)
-#print(df2, df2.columns, df2.close, filepath)
+'''df, filepath = get_MonthlyAdjusted('AAPL')
 
-df3.to_csv(filepath, index=False, header=True)
-df3 = pd.read_csv(filepath)
-print(df3, df3.columns, df3.close, filepath)
+df.to_csv(filepath, index=False, header=True)
+df = pd.read_csv(filepath)
+print(df, df.columns, filepath)
 
 
 fig, ax = plt.subplots(figsize=(12,4))
-x = df3.sort_values(by='timestamp').timestamp
-y = df3.sort_values(by='timestamp')['adjusted_close']
+x = df.sort_values(by='timestamp').timestamp
+y = df.sort_values(by='timestamp')['adjusted close']
 lines = ax.plot(x,y)
-plt.show()
+plt.show()'''
